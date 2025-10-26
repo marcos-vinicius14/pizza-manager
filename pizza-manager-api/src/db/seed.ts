@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import { faker } from '@faker-js/faker';
 import { user, restaurants } from './schema'
 import { db } from './connection';
@@ -7,7 +9,6 @@ import logger from '../../logger';
 await db.delete(user);
 await db.delete(restaurants);
 logger.info(chalk.yellow('Database reset with sucessfull!'));
-
 
 
 await db.insert(user).values([
