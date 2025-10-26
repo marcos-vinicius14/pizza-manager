@@ -1,8 +1,13 @@
+import "dotenv/config"
+
 import Elysia, { t } from "elysia";
 import { db } from "../../db/connection";
 import { eq } from 'drizzle-orm';
 import { authLinks, user } from "../../db/schema";
 import { createId } from "@paralleldrive/cuid2";
+import logger from "../../../logger";
+import chalk from "chalk";
+import { mailer } from "../../lib/mail";
 
 
 export const authRoutes = new Elysia().post('/authenticate', async ({ body }) => {
@@ -25,11 +30,22 @@ export const authRoutes = new Elysia().post('/authenticate', async ({ body }) =>
     })
 
     // TODO: Futuramente, essa rota deve enviar um email
+
     const authLink = new URL('/auth-links/authenticate', process.env.API_BASE_URL);
     authLink.searchParams.set('code', authLinkCode);
     authLink.searchParams.set('redirect', process.env.AUTH_REDIRECT_URL!);
 
-    console.log(authLink);
+    await mailer.sendMail({
+        from: {
+            name: 'Pizza Manager',
+            address: 'hi@pizza-manager.com'
+        },
+        to: email,
+        subject: 'Autenticação Pizza Manager',
+        text: `Use the following link to authenticate on Pizza Manager: ${authLink.href}`
+    })
+
+    logger.info(chalk.yellowBright(`Auth link: ${authLink.href}`));
 
 
 }, {

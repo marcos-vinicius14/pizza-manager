@@ -1,12 +1,13 @@
+import 'dotenv/config';
 import logger from "../../logger";
 import chalk from 'chalk'
 import { Elysia, t } from "elysia";
 import { appRoutes } from "./routes";
-import jwt from "@elysiajs/jwt";
-import cookie from "@elysiajs/cookie";
 
 const PORT = process.env.PORT || 3333;
 const ENV = process.env.NODE_ENV || 'development';
+
+import { auth } from "./auth";
 
 const app = new Elysia()
   .use(appRoutes)

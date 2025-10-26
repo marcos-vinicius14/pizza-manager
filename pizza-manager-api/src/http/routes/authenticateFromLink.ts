@@ -1,16 +1,17 @@
-import Elysia, { t } from "elysia";
-import { db } from "../../db/connection";
-import { authLinks, restaurants } from "../../db/schema";
-import { eq } from "drizzle-orm";
-import dayjs from "dayjs";
-import { auth } from "../auth";
-import logger from "../../../logger";
 import chalk from "chalk";
+import dayjs from "dayjs";
+import  { eq } from "drizzle-orm";
+import Elysia, { t } from "elysia";
+import logger from "../../../logger";
+import  { db } from "../../db/connection";
+import { authLinks, restaurants } from "../../db/schema";
+import { auth } from "../auth";
 
 export const authenticateFromLink = new Elysia()
     .use(auth)
-    .get('/auth-links/authenticate', async ({ query, set, signUser }) => {
+    .get('/auth-links/authenticate', async (context) => {
 
+        const { query, set } = context;
         const { code, redirect } = query;
 
         const [authLinkFromCode] = await db
@@ -33,14 +34,12 @@ export const authenticateFromLink = new Elysia()
         const [managerRestaurant] = await db
             .select()
             .from(restaurants)
-            .where(eq(restaurants.id, authLinkFromCode.userId));
+            .where(eq(restaurants.managerId, authLinkFromCode.userId));
 
-        await signUser({
+        await context.signUser({ 
             sub: authLinkFromCode.userId,
             restaurantId: managerRestaurant?.id,
         });
-
-
 
         await db
             .delete(authLinks)
@@ -48,16 +47,9 @@ export const authenticateFromLink = new Elysia()
 
         set.redirect = redirect;
 
-
-
-
     }, {
         query: t.Object({
             code: t.String(),
             redirect: t.String(),
         })
     });
-
-function signUser(arg0: { sub: string; restaurantId: string; }) {
-    throw new Error("Function not implemented.");
-}
