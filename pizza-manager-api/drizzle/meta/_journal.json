@@ -15,6 +15,13 @@
       "when": 1761480672005,
       "tag": "0001_woozy_earthquake",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761518139699,
+      "tag": "0002_sparkling_clint_barton",
+      "breakpoints": true
     }
   ]
 }
