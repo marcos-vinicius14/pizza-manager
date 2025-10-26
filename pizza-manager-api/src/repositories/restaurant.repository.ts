@@ -4,34 +4,12 @@ import { db } from '../db/connection'
 import { restaurants, user } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import type { PgTransaction } from 'drizzle-orm/pg-core'
+import type { CreateUserData } from './interfaces/CreateUserData'
+import type { CreateRestaurantData } from './interfaces/CreateRestaurantData'
+import type { Restaurant } from './interfaces/Restaurant'
+import type { User } from './interfaces/User'
 
-interface CreateUserData {
-  name: string
-  email: string
-  phone: string
-}
 
-interface CreateRestaurantData {
-  restaurantName: string
-  managerId: string
-}
-
-interface User {
-  id: string
-  name: string
-  email: string
-  phone: string
-  userRole: string
-  createdAt: Date
-}
-
-interface Restaurant {
-  id: string
-  name: string
-  managerId: string
-  description: string
-  createdAt: Date
-}
 
 type Transaction = PgTransaction<any, any, any>
 
@@ -80,7 +58,6 @@ export class RestaurantRepository {
     return foundUser ? (foundUser as User) : null
   }
 
-  // ==================== MÉTODOS DE RESTAURANTE ====================
 
   async createRestaurant(
     data: CreateRestaurantData,
