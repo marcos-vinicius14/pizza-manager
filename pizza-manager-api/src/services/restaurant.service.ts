@@ -1,6 +1,8 @@
 import chalk from 'chalk'
 import logger from '../../logger'
 import { RestaurantRepository } from '../repositories/restaurant.repository'
+import  { RestaurantAlreadyExistsError } from '../exceptions/RestaurantAlreadyExistsError'
+import  { RestaurantValidationError } from '../exceptions/RestaurantValidationError'
 
 interface CreateRestaurantRequest {
   restaurantName: string
@@ -16,19 +18,7 @@ interface CreateRestaurantResponse {
   createdAt: Date
 }
 
-export class RestaurantValidationError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'RestaurantValidationError'
-  }
-}
 
-export class RestaurantAlreadyExistsError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'RestaurantAlreadyExistsError'
-  }
-}
 
 export class RestaurantService {
   constructor(private restaurantRepository: RestaurantRepository) {}

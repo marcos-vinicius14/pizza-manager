@@ -4,10 +4,8 @@ import { db } from '../db/connection'
 import { restaurants, user } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import type { PgTransaction } from 'drizzle-orm/pg-core'
-import type { CreateUserData } from './interfaces/CreateUserData'
-import type { CreateRestaurantData } from './interfaces/CreateRestaurantData'
-import type { Restaurant } from './interfaces/Restaurant'
-import type { User } from './interfaces/User'
+import type { CreateUserData, User, CreateRestaurantData, Restaurant } from './interfaces'
+
 
 
 
