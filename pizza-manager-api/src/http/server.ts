@@ -10,15 +10,8 @@ const ENV = process.env.NODE_ENV || 'development';
 
 const app = new Elysia()
   .use(appRoutes)
-  .use(jwt({
-    secret: process.env.JWT_SECRET_KEY!,
-    schema: t.Object({
-      sub: t.String(),
-      restaurantId: t.Optional(t.String()),
-
-    })
-  }))
-  .use(cookie());
+  
+ ;
 
 
 app.listen(PORT, () => {
@@ -29,7 +22,7 @@ app.listen(PORT, () => {
 });
 
 process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
+  logger.info(chalk.redBright('SIGTERM received, shutting down gracefully'));
   app.stop();
   process.exit(0);
 });
