@@ -9,7 +9,7 @@ import chalk from "chalk";
 
 export const authenticateFromLink = new Elysia()
     .use(auth)
-    .get('/auth-links/authenticate', async ({ query, jwt, cookie, set }) => {
+    .get('/auth-links/authenticate', async ({ query, set, signUser }) => {
 
         const { code, redirect } = query;
 
@@ -35,19 +35,12 @@ export const authenticateFromLink = new Elysia()
             .from(restaurants)
             .where(eq(restaurants.id, authLinkFromCode.userId));
 
-
-        const jwtToken = await jwt.sign({
+        await signUser({
             sub: authLinkFromCode.userId,
             restaurantId: managerRestaurant?.id,
         });
 
 
-        cookie.token?.set({
-            value: jwtToken,
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 7, // 7 days
-            path: '/',
-        });
 
         await db
             .delete(authLinks)
@@ -64,3 +57,7 @@ export const authenticateFromLink = new Elysia()
             redirect: t.String(),
         })
     });
+
+function signUser(arg0: { sub: string; restaurantId: string; }) {
+    throw new Error("Function not implemented.");
+}
