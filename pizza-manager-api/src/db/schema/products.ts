@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { restaurants } from "./restaurants";
 
 
@@ -13,4 +13,7 @@ export const products = pgTable('tb_products', {
         .references(() => restaurants.id, {
         onDelete: 'cascade',
     }),
+    creteadAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+
 })
