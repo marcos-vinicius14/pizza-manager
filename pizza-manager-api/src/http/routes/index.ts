@@ -8,6 +8,8 @@ import { getProfile } from './get-profile'
 import { getManagedRestaurants } from './get-managed-restaurant'
 import { getOrderDetails } from './get-order-details'
 import { aproveOrder } from './aprove-order'
+import { deliverOrder } from './deliver-order'
+import { cancelOrder } from './cancelled-order'
 
 export const appRoutes = new Elysia({ name: 'appRoutes' })
   .use(auth)
@@ -18,6 +20,9 @@ export const appRoutes = new Elysia({ name: 'appRoutes' })
   .use(getProfile)
   .use(getManagedRestaurants)
   .use(getOrderDetails)
+  .use(aproveOrder)
+  .use(deliverOrder)
+  .use(cancelOrder)
   .use(aproveOrder)
   .onError(({code, error, set }) => {
     switch (code) {
