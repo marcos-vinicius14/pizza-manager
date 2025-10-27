@@ -1,8 +1,8 @@
 import chalk from 'chalk'
 import logger from '../../logger'
 import { RestaurantRepository } from '../repositories/restaurant.repository'
-import  { RestaurantAlreadyExistsError } from '../exceptions/RestaurantAlreadyExistsError'
-import  { RestaurantValidationError } from '../exceptions/RestaurantValidationError'
+import  { RestaurantAlreadyExistsError } from './exceptions/RestaurantAlreadyExistsError'
+import  { RestaurantValidationError } from './exceptions/RestaurantValidationError'
 
 interface CreateRestaurantRequest {
   restaurantName: string

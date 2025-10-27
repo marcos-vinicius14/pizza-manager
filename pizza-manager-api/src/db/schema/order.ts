@@ -1,6 +1,9 @@
 import { createId } from "@paralleldrive/cuid2";
 import { integer, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { user } from "./users";
+import { relations } from "drizzle-orm";
+import { ordersItems } from "./order-items";
+import { restaurants } from "./restaurants";
 
 
 export const orderStatusEnum = pgEnum('order_status', [
@@ -30,4 +33,22 @@ export const orders = pgTable('tb_orders', {
         .default('pending')
         .notNull(),
     totalOrderInCents: integer('total_order_in_cents').notNull(),
-})
+});
+
+
+export const oredersRelations = relations(orders, ({ one, many }) => {
+    return {
+        customer: one(user, {
+            fields: [orders.customerId],
+            references: [user.id],
+            relationName: 'order_customer'
+        }),
+        restaurant: one(restaurants, {
+            fields: [orders.restaurantId],
+            references: [restaurants.id],
+            relationName: 'order_restaurant'
+        }),
+        items: many(ordersItems)
+    
+    }
+});
