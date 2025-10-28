@@ -1,8 +1,8 @@
 import chalk from 'chalk'
-import logger from '../../logger'
-import { RestaurantRepository } from '../repositories/restaurant.repository'
-import  { RestaurantAlreadyExistsError } from './exceptions/RestaurantAlreadyExistsError'
-import  { RestaurantValidationError } from './exceptions/RestaurantValidationError'
+import logger from '../../../logger'
+import { RestaurantRepository } from '../../repositories/restaurant.repository'
+import { RestaurantAlreadyExistsError } from './exceptions/RestaurantAlreadyExistsError'
+import { RestaurantValidationError } from './exceptions/RestaurantValidationError'
 
 interface CreateRestaurantRequest {
   restaurantName: string
@@ -18,8 +18,6 @@ interface CreateRestaurantResponse {
   createdAt: Date
 }
 
-
-
 export class RestaurantService {
   constructor(private restaurantRepository: RestaurantRepository) {}
 
@@ -32,20 +30,13 @@ export class RestaurantService {
     try {
       this.validateRestaurantInput({ restaurantName, name, email, phone })
 
-      const existingUser = await this.restaurantRepository.findUserByEmail(email)
-      if (existingUser) {
-        logger.error(chalk.redBright(`✗  Email already exists: ${email}`));
-        throw new RestaurantAlreadyExistsError(
-          `Usuário com email ${email} já existe`
-        )
-      }
+
 
       const existingRestaurant = await this.restaurantRepository.findRestaurantByName(
         restaurantName
       )
       if (existingRestaurant) {
         logger.error(chalk.redBright(`✗  Restaurant already exists: ${restaurantName}`));
-
         throw new RestaurantAlreadyExistsError(
           `Restaurante com nome "${restaurantName}" já existe`
         )
@@ -139,7 +130,7 @@ export class RestaurantService {
   }
 
   private isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^S@]+@[^S@]+\.[^S@]+$/
     return emailRegex.test(email)
   }
 
@@ -164,8 +155,31 @@ export class RestaurantService {
       }
 
       logger.error(chalk.redBright(`✗  Error while get restaurant by id: ${error}`))
-
       throw new Error('Erro ao buscar restaurante')
+    }
+  }
+
+  async getManagedRestaurant(restaurantId: string) {
+    if (!restaurantId) {
+      throw new RestaurantValidationError('Restaurante não encontrado, usuário não autorizado');
+    }
+
+    const restaurant = await this.restaurantRepository.findRestaurantById(restaurantId);
+
+    if (!restaurant) {
+      throw new RestaurantValidationError(`Restaurante ${restaurantId} não encontrado`);
+    }
+
+    return restaurant;
+  }
+
+  async listRestaurants(options: { page: number; limit: number }) {
+    try {
+      const restaurants = await this.restaurantRepository.listRestaurants(options);
+      return restaurants;
+    } catch (error) {
+      logger.error(chalk.redBright(`✗  Error while listing restaurants: ${error}`))
+      throw new Error('Erro ao listar restaurantes');
     }
   }
 }

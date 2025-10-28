@@ -23,7 +23,6 @@ export const appRoutes = new Elysia({ name: 'appRoutes' })
   .use(aproveOrder)
   .use(deliverOrder)
   .use(cancelOrder)
-  .use(aproveOrder)
   .onError(({code, error, set }) => {
     switch (code) {
       case 'VALIDATION':

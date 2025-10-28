@@ -4,7 +4,7 @@ import { db } from '../db/connection'
 import { restaurants, user } from '../db/schema'
 import { eq } from 'drizzle-orm'
 import type { PgTransaction } from 'drizzle-orm/pg-core'
-import type { CreateUserData, User, CreateRestaurantData, Restaurant } from './interfaces'
+import type { CreateUserData, User, CreateRestaurantData, Restaurant } from './restaurant-repository'
 
 
 
@@ -34,16 +34,6 @@ export class RestaurantRepository {
     }
 
     return createdUser as User
-  }
-
-  async findUserByEmail(email: string): Promise<User | null> {
-    const [foundUser] = await db
-      .select()
-      .from(user)
-      .where(eq(user.email, email))
-      .limit(1)
-
-    return foundUser ? (foundUser as User) : null
   }
 
   async findUserById(id: string): Promise<User | null> {

@@ -7,7 +7,6 @@ import { appRoutes } from "./routes";
 const PORT = process.env.PORT || 3333;
 const ENV = process.env.NODE_ENV || 'development';
 
-import { auth } from "./auth";
 
 const app = new Elysia()
   .use(appRoutes)

@@ -2,7 +2,7 @@ import { Elysia, t } from 'elysia'
 import type { Context } from 'elysia'
 import logger from '../../../logger'
 import chalk from 'chalk'
-import { RestaurantService } from '../../services/restaurant.service'
+import { RestaurantService } from '../../services/restaurant/restaurant.service'
 import { RestaurantRepository } from '../../repositories/restaurant.repository'
 
 interface CreateRestaurantBody {

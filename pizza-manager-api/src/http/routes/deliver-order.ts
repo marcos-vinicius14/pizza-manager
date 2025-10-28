@@ -1,61 +1,29 @@
 import Elysia, { t } from "elysia";
 import { auth } from "../auth";
-import { orders } from "../../db/schema";
-import { db } from "../../db/connection";
-import { eq } from "drizzle-orm";
-
-
+import { OrderService } from "../../services/order/order.service";
+import { OrderRepository } from "../../repositories/order.repository";
 
 export const deliverOrder = new Elysia()
     .use(auth)
-    .patch('/order/:id/delivere', async ({ getCurrentUser, set, params }) => {
+    .patch('/order/:id/deliver', async ({ getCurrentUser, set, params }) => {
         const { id } = params;
-
         const { restaurantId } = await getCurrentUser();
 
-        if (!restaurantId) {
-            throw new Error('Unauthorized');
-        }
+        const orderRepository = new OrderRepository();
+        const orderService = new OrderService(orderRepository);
 
-        const [order] = await db
-            .select()
-            .from(orders)
-            .where(eq(orders.id, id));
-
-        if (!order) {
-            set.status = 400;
+        try {
+            await orderService.deliverOrder(id, restaurantId as string);
+            set.status = 204; // Success, no content
+        } catch (error: any) {
+            set.status = 400; // Bad Request
             return {
                 success: false,
-                message: 'Order not found'
-            }
+                message: error.message
+            };
         }
-
-        if (order.status != 'delivering') {
-            set.status = 400;
-            return {
-                success: false,
-                message: 'You cannot deliver an order that is not in delivering status'
-            }
-        }
-
-        await db
-            .update(orders)
-            .set({
-                status: 'delivered'
-            })
-            .where(eq(orders.id, id));
-
-        return {
-            success: true,
-            message: 'Order approved'
-        }
-
-
-
-
     }, {
         params: t.Object({
             id: t.String(),
         })
-
-    })
+    });

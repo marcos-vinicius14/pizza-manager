@@ -1,61 +1,29 @@
 import Elysia, { t } from "elysia";
 import { auth } from "../auth";
-import { orders } from "../../db/schema";
-import { db } from "../../db/connection";
-import { eq } from "drizzle-orm";
-
-
+import { OrderService } from "../../services/order/order.service";
+import { OrderRepository } from "../../repositories/order.repository";
 
 export const aproveOrder = new Elysia()
     .use(auth)
     .patch('/order/:id/approve', async ({ getCurrentUser, set, params }) => {
         const { id } = params;
-
         const { restaurantId } = await getCurrentUser();
 
-        if (!restaurantId) {
-            throw new Error('Unauthorized');
-        }
+        const orderRepository = new OrderRepository();
+        const orderService = new OrderService(orderRepository);
 
-        const [order] = await db
-            .select()
-            .from(orders)
-            .where(eq(orders.id, id));
-
-        if (!order) {
+        try {
+            await orderService.approveOrder(id, restaurantId as string);
+            set.status = 204;
+        } catch (error: any) {
             set.status = 400;
             return {
                 success: false,
-                message: 'Order not found'
-            }
+                message: error.message
+            };
         }
-
-        if (order.status !== 'pending') {
-            set.status = 400;
-            return {
-                success: false,
-                message: 'Order is already approved'
-            }
-        }
-
-        await db
-            .update(orders)
-            .set({
-                status: 'processing'
-            })
-            .where(eq(orders.id, id));
-
-        return {
-            success: true,
-            message: 'Order approved'
-        }
-
-
-
-
     }, {
         params: t.Object({
             id: t.String(),
         })
-
-    })
+    });

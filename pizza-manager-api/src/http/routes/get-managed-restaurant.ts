@@ -1,26 +1,16 @@
 import Elysia from "elysia";
 import { auth } from "../auth";
-import { eq } from "drizzle-orm";
-import { db } from "../../db/connection";
-import  { restaurants } from "../../db/schema";
-import chalk from "chalk";
-import logger from "../../../logger";
+import { RestaurantService } from "../../services/restaurant/restaurant.service";
+import { RestaurantRepository } from "../../repositories/restaurant.repository";
 
 export const getManagedRestaurants = new Elysia()
     .use(auth)
-    .get('/managed-restaurants', async ({ getCurrentUser}) => {
+    .get('/managed-restaurants', async ({ getCurrentUser }) => {
         const { restaurantId } = await getCurrentUser();
+        const restaurantRepository = new RestaurantRepository();
+        const restaurantService = new RestaurantService(restaurantRepository);
 
-        if (!restaurantId) {
-            logger.error(chalk.redBright(`✗  Unauthorized`))
-            throw new Error('Unauthorized');
-        }
+        const restaurant = await restaurantService.getManagedRestaurant(restaurantId as string);
 
-
-        const managedRestaurants = await db
-            .select()
-            .from(restaurants)
-            .where(eq(restaurants.id, restaurantId as string));
-
-        return managedRestaurants;
-    })
+        return restaurant;
+    });
