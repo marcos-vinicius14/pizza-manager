@@ -1,16 +1,17 @@
 import Elysia from "elysia";
-import { auth } from "../auth";
-import { RestaurantService } from "../../services/restaurant/restaurant.service";
-import { RestaurantRepository } from "../../repositories/restaurant.repository";
+import { auth } from "@/http/auth";
+import { GetManagedRestaurantUseCase } from "@/modules/restaurants/application/use-cases/get-managed-restaurant.use-case";
+import { DrizzleRestaurantRepository } from "@/modules/restaurants/infra/repositories/drizzle-restaurant.repository";
 
-export const getManagedRestaurants = new Elysia()
-    .use(auth)
-    .get('/managed-restaurants', async ({ getCurrentUser }) => {
-        const { restaurantId } = await getCurrentUser();
-        const restaurantRepository = new RestaurantRepository();
-        const restaurantService = new RestaurantService(restaurantRepository);
+export const getManagedRestaurant = new Elysia().use(auth).get(
+  "/managed-restaurant",
+  async ({ getCurrentUser }) => {
+    const { restaurantId, sub: managerId } = await getCurrentUser();
 
-        const restaurant = await restaurantService.getManagedRestaurant(restaurantId as string);
+    const restaurantRepository = new DrizzleRestaurantRepository();
+    const getManagedRestaurantUseCase = new GetManagedRestaurantUseCase(restaurantRepository);
+    const restaurant = await getManagedRestaurantUseCase.execute({ managerId });
 
-        return restaurant;
-    });
+    return restaurant;
+  }
+);

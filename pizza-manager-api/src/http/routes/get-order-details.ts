@@ -1,26 +1,33 @@
 import Elysia, { t } from "elysia";
-import { auth } from "../auth";
-import { OrderRepository } from "../../repositories/order.repository";
-import { OrderService } from "../../services/order/order.service";
+import { auth } from "@/http/auth";
+import { GetOrderDetailsUseCase } from "@/modules/orders/application/use-cases/get-order-details.use-case";
+import { DrizzleOrderRepository } from "@/modules/orders/infra/repositories/drizzle-order.repository";
 
-export const getOrderDetails = new Elysia()
-    .use(auth)
-    .get('/order/:id', async ({ params, getCurrentUser, set }) => {
-        const { id } = params;
-        const { restaurantId } = await getCurrentUser();
+export const getOrderDetails = new Elysia().use(auth).get(
+  "/orders/:orderId",
+  async ({ getCurrentUser, params, set }) => {
+    const { orderId } = params;
+    const { restaurantId } = await getCurrentUser();
 
-        const orderRepository = new OrderRepository();
-        const orderService = new OrderService(orderRepository);
+    if (!restaurantId) {
+      set.status = 401;
+      return { message: "User is not a manager of any restaurant." };
+    }
 
-        try {
-            const order = await orderService.getOrderDetails(id, restaurantId as string);
-            return order;
-        } catch (error: any) {
-            set.status = 404; // Not Found
-            return { success: false, message: error.message };
-        }
-    }, {
-        params: t.Object({
-            id: t.String(),
-        })
-    });
+    const orderRepository = new DrizzleOrderRepository();
+    const getOrderDetailsUseCase = new GetOrderDetailsUseCase(orderRepository);
+
+    try {
+      const order = await getOrderDetailsUseCase.execute({ orderId });
+      return order;
+    } catch (error: any) {
+      set.status = 404;
+      return { message: error.message };
+    }
+  },
+  {
+    params: t.Object({
+      orderId: t.String(),
+    }),
+  }
+);
